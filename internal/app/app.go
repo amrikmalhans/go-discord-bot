@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/signal"
 
+	"github.com/amrikmalhans/go-discord-bot.git/internal/commands"
 	"github.com/bwmarrin/discordgo"
 	"github.com/joho/godotenv"
 )
@@ -31,8 +32,20 @@ func New() *App {
 
 	_, err = s.ApplicationCommandBulkOverwrite(applicationID, guildID, []*discordgo.ApplicationCommand{
 		{
-			Name:        "hello-world",
-			Description: "Showcase of a basic slash command",
+			Name:        "add-todo",
+			Description: "Add a to-do item",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "item",
+					Description: "The todo item",
+					Required:    true,
+				},
+			},
+		},
+		{
+			Name:        "list-todos",
+			Description: "List all todo items",
 		},
 	})
 
@@ -40,27 +53,7 @@ func New() *App {
 		log.Fatalf("Error setting up commands: %v", err)
 	}
 
-	s.AddHandler(func(
-		s *discordgo.Session,
-		i *discordgo.InteractionCreate,
-	) {
-		data := i.ApplicationCommandData()
-		switch data.Name {
-		case "hello-world":
-			err := s.InteractionRespond(
-				i.Interaction,
-				&discordgo.InteractionResponse{
-					Type: discordgo.InteractionResponseChannelMessageWithSource,
-					Data: &discordgo.InteractionResponseData{
-						Content: "Hello world!",
-					},
-				},
-			)
-			if err != nil {
-				panic(err)
-			}
-		}
-	})
+	commands.Register(s)
 
 	return &App{
 		Bot: s,
