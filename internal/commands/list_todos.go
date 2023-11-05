@@ -31,27 +31,33 @@ func ListTodos(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			panic(err)
 		}
 
-		var todoItems []Todo
+		// Create an empty slice of MessageEmbedField pointers
+		fields := []*discordgo.MessageEmbedField{}
 
+		index := 0
+		components := make([]discordgo.MessageComponent, 0)
 		for rows.Next() {
+			index++
 			var todoItem Todo
 			err := rows.Scan(&todoItem.Item)
 			if err != nil {
 				panic(err)
 			}
-			todoItems = append(todoItems, todoItem)
-		}
-
-		// Create an empty slice of MessageEmbedField pointers
-		fields := []*discordgo.MessageEmbedField{}
-
-		// Loop through todoItems to populate fields
-		for i, todo := range todoItems {
 			fields = append(fields, &discordgo.MessageEmbedField{
-				Name:  fmt.Sprintf("Todo #%d", i+1),
-				Value: todo.Item,
+				Name:  fmt.Sprintf("Todo #%d", index),
+				Value: todoItem.Item,
 			})
+
+			button := discordgo.Button{
+				Label: "Done",
+				Style: discordgo.SuccessButton,
+				CustomID: fmt.Sprintf("todo-%d", todoItem.ID),
+			}
+
+			components = append(components, button)
 		}
+
+		
 
 		embed := &discordgo.MessageEmbed{
 			Title:       "Your todo items",
@@ -66,6 +72,7 @@ func ListTodos(s *discordgo.Session, i *discordgo.InteractionCreate) {
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
 					Embeds: []*discordgo.MessageEmbed{embed},
+					Components: components,
 				},
 			},
 		)

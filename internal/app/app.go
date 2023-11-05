@@ -37,9 +37,15 @@ func New() *App {
 			Options: []*discordgo.ApplicationCommandOption{
 				{
 					Type:        discordgo.ApplicationCommandOptionString,
-					Name:        "item",
-					Description: "The todo item",
+					Name:        "todo",
+					Description: "The todo item you want to create",
 					Required:    true,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:		"due-date",
+					Description: "The due date for the todo item",
+					Required:    false,
 				},
 			},
 		},
@@ -48,6 +54,8 @@ func New() *App {
 			Description: "List all todo items",
 		},
 	})
+
+	s.Identify.Intents =  discordgo.IntentsGuildMessages
 
 	if err != nil {
 		log.Fatalf("Error setting up commands: %v", err)

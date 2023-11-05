@@ -7,4 +7,5 @@ import (
 func Register(s *discordgo.Session) {
 	s.AddHandler(AddTodo)
 	s.AddHandler(ListTodos)
+	s.AddHandler(Message)
 }

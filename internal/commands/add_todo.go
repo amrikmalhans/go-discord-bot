@@ -19,8 +19,13 @@ func AddTodo(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	case "add-todo":
 
 		todoItem := data.Options[0].StringValue()
+		dueDate := data.Options[1].StringValue()
 
-		_, err := db.Exec(context.Background(), "INSERT INTO todos (user_id, item) VALUES ($1, $2)", userId, todoItem)
+		_, err := db.Exec(
+			context.Background(), 
+			"INSERT INTO todos (user_id, item, due_date) VALUES ($1, $2, $3)",
+			userId, todoItem, dueDate,
+		)
 		if err != nil {
 			panic(err)
 		}
